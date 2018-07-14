@@ -19,6 +19,8 @@ contract HeirToTheThrown is Ownable {
     monarch public activeMonarch;
 	//is using a mapping better than using an array here?
 	dynasty[] public dynasties;// each dynasty has an unsigned integer by which it is represented
+	uint public totalDynasties;
+	
 	//cost to become new monarch
 	uint public crownCost;
 
@@ -37,7 +39,7 @@ contract HeirToTheThrown is Ownable {
 	struct dynasty {
 		bytes32 name;
 		monarch[] monarchs;
-		uint length;//number of monarchs in this dynasty
+		uint totalMonarchs;//number of monarchs in this dynasty
 	}
 	
 	modifier onlyMonarch() {
@@ -46,10 +48,11 @@ contract HeirToTheThrown is Ownable {
     }
 
 	//Events
+	event DynastyStarted(address indexed newMonarch);
 	event CrownRenounced(address indexed previousMonarch);
-    event CrownTransferred(address indexed previousMonarch, address indexed newMonarch);
+    event CrownPassedOn(address indexed previousMonarch, address indexed newMonarch);
 
-	constructor() {
+	constructor() public {
 	    latestContract = address(this);
 	    contractOwner = msg.sender;
 		startDynasty("Flash", "First");
@@ -68,17 +71,19 @@ contract HeirToTheThrown is Ownable {
 		activeMonarch.addr = msg.sender;
 		//activeMonarch.abdicated = false;//does this default to false?
 		dynasties[dynasties.length-1].monarchs.push(activeMonarch);//TODO testing
+		dynasties[dynasties.length-1].totalMonarchs++;
 	}
-
+    
 	function startDynasty(bytes32 _heirName, bytes32 _dynastyName) public payable {
 	    if(dynasties.length != 0){
             require(dynasties[dynasties.length-1].monarchs[dynasties[dynasties.length-1].monarchs.length-1].abdicated, "Last Dynasty is still going strong");
 	    }
-		dynasty memory newDynasty;
-		newDynasty.name = _dynastyName;
-		newDynasty.length = 1;
-		dynasties.push(newDynasty);
+        dynasty storage newDynasty;//Unfortunately needs to be storage TODO test consequences
+	    dynasties.push(newDynasty);
+	    //dynasties.push(dynasty(_dynastyName, new monarch[](0), 0));//Unsupported
+	    dynasties[dynasties.length-1].name = _dynastyName;
 		takeCrown(_heirName);
+		emit DynastyStarted(msg.sender);
 	}
 
 	function abdication() private {
