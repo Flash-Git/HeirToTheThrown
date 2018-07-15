@@ -48,7 +48,7 @@ contract HeirToTheThrown is Ownable {
     }
 
 	//Events
-	event DynastyStarted(address indexed newMonarch);
+	event DynastyStarted(address indexed DynastyStarter);
 	event CrownRenounced(address indexed previousMonarch);
     event CrownTaken(address indexed previousMonarch, address indexed newMonarch, uint amount);
     event TaxesPayed(address indexed from, address indexed currentMonarch, uint amount);
@@ -65,20 +65,24 @@ contract HeirToTheThrown is Ownable {
 	}
 
 	function takeCrown(string _heirName) public payable {//TODO Check for exploits
-		require(msg.value + taxesHeld >= crownCost, "Cannot afford the Crown");
+        require(msg.value + taxesHeld >= crownCost, "Cannot afford the Crown");
 		uint value = msg.value + taxesHeld;
-		crownCost =  value + value * coefCostPerc / 100;
-		monarch memory newMonarch = monarch(msg.sender, _heirName, msg.value + taxesHeld, false);//Not sure whether to put straight value without taxes or total into monarch.costOfCrown
-		if(getActiveDynasty().monarchs.length >= 1){//TODO check effects of taxes before this is true
-		    taxesHeld = 0;
-		    getActiveMonarch().addr.transfer(value);
+        taxesHeld = 0;
+
+		if(dynasties.length == 1 && dynasties[0].monarchs.length < 1){
+            contractOwner.transfer(value);		    
+		}else{
+            getActiveMonarch().addr.transfer(value);
 		}
+		
+		monarch memory newMonarch = monarch(msg.sender, _heirName, value, false);
+		
+		emit CrownTaken(getActiveMonarch().addr, newMonarch.addr, value);
+		
 		dynasties[dynasties.length-1].monarchs.push(newMonarch);//TODO testing
 		dynasties[dynasties.length-1].totalMonarchs++;
-		if(getActiveDynasty().monarchs.length == 1){
-		    return;
-		}
-		emit CrownTaken(getActiveDynasty().monarchs[getActiveDynasty().monarchs.length-2].addr, getActiveMonarch().addr, getActiveMonarch().costOfCrown);
+
+    	crownCost =  value + value * coefCostPerc / 100;
 	}
     
 	function startDynasty(string _heirName, string _dynastyName) public payable {
@@ -143,7 +147,7 @@ contract HeirToTheThrown is Ownable {
 	}
 	
 	function changeAddr(address _newAddress) public onlyMonarch {
-	    getActiveMonarch().addr = _newAddress;//TODO check this works
+	    dynasties[dynasties.length-1].monarchs[dynasties[dynasties.length-1].monarchs.length-1].addr = _newAddress;// getActiveMonarch().addr does not work
 	}
 	
 	//If this code gets updated, point to it here
