@@ -10,17 +10,14 @@ function _transferCrown(address _newMonarch) internal {
     activeMonarchAddr = _newMonarch;
 }
 */
-pragma solidity 0.4.24;
-
 contract HeirToTheThrown is Ownable {
     
+    //Points to latest contract
     address public latestContract;
 
-    monarch public activeMonarch;
 	//is using a mapping better than using an array here?
-	dynasty[] public dynasties;// each dynasty has an unsigned integer by which it is represented
-	uint public totalDynasties;
-	
+	dynasty[] public dynasties;
+
 	//cost to become new monarch
 	uint public crownCost;
 
@@ -43,16 +40,16 @@ contract HeirToTheThrown is Ownable {
 	}
 	
 	modifier onlyMonarch() {
-        require(msg.sender == activeMonarch.addr, "Not the monarch");
+        require(msg.sender == getActiveMonarch().addr, "Not the monarch");
         _;
     }
 
 	//Events
 	event DynastyStarted(address indexed newMonarch);
 	event CrownRenounced(address indexed previousMonarch);
-    event CrownPassedOn(address indexed previousMonarch, address indexed newMonarch);
+    event CrownTaken(address indexed previousMonarch, address indexed newMonarch);
 
-	constructor() public {
+	constructor() public payable {
 	    latestContract = address(this);
 	    contractOwner = msg.sender;
 		startDynasty("Flash", "First");
@@ -65,13 +62,16 @@ contract HeirToTheThrown is Ownable {
 	function takeCrown(bytes32 _heirName) public payable {
 		require(msg.value >= crownCost, "Cannot afford the Crown");
 		crownCost = msg.value + msg.value * coefCostPerc / 100;
-		activeMonarch.name = _heirName;
-		activeMonarch.costOfCrown = msg.value;
-		activeMonarch.addr.transfer(msg.value);
-		activeMonarch.addr = msg.sender;
-		//activeMonarch.abdicated = false;//does this default to false?
-		dynasties[dynasties.length-1].monarchs.push(activeMonarch);//TODO testing
+		monarch memory newMonarch = monarch(msg.sender, _heirName, msg.value, false);
+		if(getActiveDynasty().monarchs.length >= 1){
+		    getActiveMonarch().addr.transfer(msg.value);
+		}
+		dynasties[dynasties.length-1].monarchs.push(newMonarch);//TODO testing
 		dynasties[dynasties.length-1].totalMonarchs++;
+		if(getActiveDynasty().monarchs.length == 1){
+		    return;
+		}
+		emit CrownTaken(getActiveDynasty().monarchs[getActiveDynasty().monarchs.length-2].addr, getActiveMonarch().addr);
 	}
     
 	function startDynasty(bytes32 _heirName, bytes32 _dynastyName) public payable {
@@ -81,8 +81,8 @@ contract HeirToTheThrown is Ownable {
         dynasty storage newDynasty;//Unfortunately needs to be storage TODO test consequences
 	    dynasties.push(newDynasty);
 	    //dynasties.push(dynasty(_dynastyName, new monarch[](0), 0));//Unsupported
-	    dynasties[dynasties.length-1].name = _dynastyName;
-		takeCrown(_heirName);
+	    //dynasties[dynasties.length-1].name = _dynastyName;
+		//takeCrown(_heirName);
 		emit DynastyStarted(msg.sender);
 	}
 
@@ -91,12 +91,28 @@ contract HeirToTheThrown is Ownable {
 	}
 
 	function abdicate() public payable onlyMonarch {
-		require(msg.value >= activeMonarch.costOfCrown * abdicationCostPerc * 100);
-		contractOwner.transfer(activeMonarch.costOfCrown * abdicationCostPerc * 100);
+		require(msg.value >= getActiveMonarch().costOfCrown * abdicationCostPerc * 100);
+		contractOwner.transfer(getActiveMonarch().costOfCrown * abdicationCostPerc * 100);
+	}
+	
+	function getActiveMonarch() private view returns (monarch) {
+	    return dynasties[dynasties.length-1].monarchs[dynasties[dynasties.length-1].monarchs.length-1];
+	}
+	
+	function getActiveMonarchAddr() external view returns (address) {
+	    return dynasties[dynasties.length-1].monarchs[dynasties[dynasties.length-1].monarchs.length-1].addr;
+	}
+	
+	function getActiveDynasty() private view returns (dynasty) {
+	    return dynasties[dynasties.length-1];
+	}
+	
+	function getTotalDynasties() external view returns (uint) {
+	    return dynasties.length;
 	}
 	
 	function changeAddr(address _newAddress) public onlyMonarch {
-	    activeMonarch.addr = _newAddress;
+	    getActiveMonarch().addr = _newAddress;//TODO check this works
 	}
 	
 	//If this code gets updated, point to it here
