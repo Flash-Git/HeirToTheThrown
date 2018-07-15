@@ -23,18 +23,21 @@ contract HeirToTheThrown is Ownable {
 
     //How much higher than the last each price has to be (as a percentage)
 	uint public coefCostPerc = 2;
-    //cost to abdicate (as a percentage)
+    //Cost to abdicate (as a percentage)
 	uint public abdicationCostPerc = 5;
+	
+	//Taxes pay towards
+	uint public taxesHeld;
 
 	struct monarch {
 		address addr;
-		bytes32 name;
+		string name;
 		uint costOfCrown;
 		bool abdicated;
 	}
 
 	struct dynasty {
-		bytes32 name;
+		string name;
 		monarch[] monarchs;
 		uint totalMonarchs;//number of monarchs in this dynasty
 	}
@@ -47,11 +50,13 @@ contract HeirToTheThrown is Ownable {
 	//Events
 	event DynastyStarted(address indexed newMonarch);
 	event CrownRenounced(address indexed previousMonarch);
-    event CrownTaken(address indexed previousMonarch, address indexed newMonarch);
+    event CrownTaken(address indexed previousMonarch, address indexed newMonarch, uint amount);
+    event TaxesPayed(address indexed from, address indexed currentMonarch, uint amount);
 
-	constructor() public payable {
+	constructor(uint _startingCost) public payable {
 	    latestContract = address(this);
 	    contractOwner = msg.sender;
+		crownCost = _startingCost;
 		startDynasty("Flash", "First");
 	}
 
@@ -59,27 +64,28 @@ contract HeirToTheThrown is Ownable {
 		//
 	}
 
-	function takeCrown(bytes32 _heirName) public payable {
-		require(msg.value >= crownCost, "Cannot afford the Crown");
-		crownCost = msg.value + msg.value * coefCostPerc / 100;
-		monarch memory newMonarch = monarch(msg.sender, _heirName, msg.value, false);
-		if(getActiveDynasty().monarchs.length >= 1){
-		    getActiveMonarch().addr.transfer(msg.value);
+	function takeCrown(string _heirName) public payable {//TODO Check for exploits
+		require(msg.value + taxesHeld >= crownCost, "Cannot afford the Crown");
+		uint value = msg.value + taxesHeld;
+		crownCost =  value + value * coefCostPerc / 100;
+		monarch memory newMonarch = monarch(msg.sender, _heirName, msg.value + taxesHeld, false);//Not sure whether to put straight value without taxes or total into monarch.costOfCrown
+		if(getActiveDynasty().monarchs.length >= 1){//TODO check effects of taxes before this is true
+		    taxesHeld = 0;
+		    getActiveMonarch().addr.transfer(value);
 		}
 		dynasties[dynasties.length-1].monarchs.push(newMonarch);//TODO testing
 		dynasties[dynasties.length-1].totalMonarchs++;
 		if(getActiveDynasty().monarchs.length == 1){
 		    return;
 		}
-		emit CrownTaken(getActiveDynasty().monarchs[getActiveDynasty().monarchs.length-2].addr, getActiveMonarch().addr);
+		emit CrownTaken(getActiveDynasty().monarchs[getActiveDynasty().monarchs.length-2].addr, getActiveMonarch().addr, getActiveMonarch().costOfCrown);
 	}
     
-	function startDynasty(bytes32 _heirName, bytes32 _dynastyName) public payable {
+	function startDynasty(string _heirName, string _dynastyName) public payable {
 	    if(dynasties.length != 0){
             require(dynasties[dynasties.length-1].monarchs[dynasties[dynasties.length-1].monarchs.length-1].abdicated, "Last Dynasty is still going strong");
 	    }
 	    dynasties.length++;
-	    //dynasties.push(dynasty(_dynastyName, new monarch[](0), 0));//Unsupported
 	    dynasties[dynasties.length-1].name = _dynastyName;
 		takeCrown(_heirName);
 		emit DynastyStarted(msg.sender);
@@ -102,6 +108,32 @@ contract HeirToTheThrown is Ownable {
 	    return dynasties[dynasties.length-1].monarchs[dynasties[dynasties.length-1].monarchs.length-1].addr;
 	}
 	
+	function payTaxes() public payable {
+	    taxesHeld += msg.value/2;
+	    emit TaxesPayed(msg.sender, getActiveMonarch().addr, msg.value);
+	}
+	
+	//Getters for monarch with indices
+	function getMonarchAddr(uint _dynastyIndex, uint _monarchIndex) external view returns (address){
+	    require(_dynastyIndex < dynasties.length && _monarchIndex < dynasties[_dynastyIndex].monarchs.length, "Invalid monarch");
+	    return dynasties[_dynastyIndex].monarchs[_monarchIndex].addr;
+	}
+	
+	function getMonarchName(uint _dynastyIndex, uint _monarchIndex) external view returns (string){
+        require(_dynastyIndex < dynasties.length && _monarchIndex < dynasties[_dynastyIndex].monarchs.length, "Invalid monarch");
+        return dynasties[_dynastyIndex].monarchs[_monarchIndex].name;
+	}
+	
+	function getMonarchCrownCost(uint _dynastyIndex, uint _monarchIndex) external view returns (uint){
+	 	require(_dynastyIndex < dynasties.length && _monarchIndex < dynasties[_dynastyIndex].monarchs.length, "Invalid monarch");
+	    return dynasties[_dynastyIndex].monarchs[_monarchIndex].costOfCrown;
+	}
+	
+	function hasMonarchAbdicated(uint _dynastyIndex, uint _monarchIndex) external view returns (bool){
+	    require(_dynastyIndex < dynasties.length && _monarchIndex < dynasties[_dynastyIndex].monarchs.length, "Invalid monarch");
+	    return dynasties[_dynastyIndex].monarchs[_monarchIndex].abdicated;
+	}
+	
 	function getActiveDynasty() private view returns (dynasty) {
 	    return dynasties[dynasties.length-1];
 	}
@@ -117,6 +149,10 @@ contract HeirToTheThrown is Ownable {
 	//If this code gets updated, point to it here
 	function setLatestContract(address _latestContract) public onlyContractOwner {
 	    latestContract = _latestContract;
+	}
+	
+	function contractWithdrawal() public onlyContractOwner {
+	    msg.sender.transfer(address(this).balance-taxesHeld);//Withdraws anything that isn't taxes
 	}
 
 }
