@@ -78,11 +78,10 @@ contract HeirToTheThrown is Ownable {
 	    if(dynasties.length != 0){
             require(dynasties[dynasties.length-1].monarchs[dynasties[dynasties.length-1].monarchs.length-1].abdicated, "Last Dynasty is still going strong");
 	    }
-        dynasty storage newDynasty;//Unfortunately needs to be storage TODO test consequences
-	    dynasties.push(newDynasty);
+	    dynasties.length++;
 	    //dynasties.push(dynasty(_dynastyName, new monarch[](0), 0));//Unsupported
-	    //dynasties[dynasties.length-1].name = _dynastyName;
-		//takeCrown(_heirName);
+	    dynasties[dynasties.length-1].name = _dynastyName;
+		takeCrown(_heirName);
 		emit DynastyStarted(msg.sender);
 	}
 
