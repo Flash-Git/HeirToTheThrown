@@ -68,16 +68,16 @@ contract HeirToTheThrown is Ownable {
         require(msg.value + taxesHeld >= crownCost, "Cannot afford the Crown");
 		uint value = msg.value + taxesHeld;
         taxesHeld = 0;
+        
+    	monarch memory newMonarch = monarch(msg.sender, _heirName, value, false);
 
 		if(dynasties.length == 1 && dynasties[0].monarchs.length < 1){
-            contractOwner.transfer(value);		    
+            contractOwner.transfer(value);
+    		emit CrownTaken(contractOwner, newMonarch.addr, value);
 		}else{
             getActiveMonarch().addr.transfer(value);
+    		emit CrownTaken(getActiveMonarch().addr, newMonarch.addr, value);
 		}
-		
-		monarch memory newMonarch = monarch(msg.sender, _heirName, value, false);
-		
-		emit CrownTaken(getActiveMonarch().addr, newMonarch.addr, value);
 		
 		dynasties[dynasties.length-1].monarchs.push(newMonarch);//TODO testing
 		dynasties[dynasties.length-1].totalMonarchs++;
@@ -160,7 +160,6 @@ contract HeirToTheThrown is Ownable {
 	}
 
 }
-
 
 /*
 crown cost = 1000
