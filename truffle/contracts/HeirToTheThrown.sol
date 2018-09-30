@@ -10,6 +10,10 @@ function _transferCrown(address _newMonarch) internal {
     activeMonarchAddr = _newMonarch;
 }
 */
+pragma solidity 0.4.24;
+
+import "./Ownable.sol";
+
 contract HeirToTheThrown is Ownable {
     
     //Points to latest contract
@@ -95,7 +99,7 @@ contract HeirToTheThrown is Ownable {
 		emit DynastyStarted(msg.sender);
 	}
 
-	function abdication() private {
+	function abdication() private {//TODO
 
 	}
 
@@ -160,15 +164,3 @@ contract HeirToTheThrown is Ownable {
 	}
 
 }
-
-/*
-crown cost = 1000
-cost for nextCrown = 1100
-cost to abducate = 1000/20 = 50
-crown cost = 500
-cost for next crown = 550
-somsone buys crown for 550, adbdicator pays half his money back
-cost to abducate = 500/20 = 25
-crown cost = 250
-
------
