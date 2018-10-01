@@ -8,7 +8,7 @@ contract TestHeirToTheThrown {
 
 	function testBasics() public {
 		HeirToTheThrown inst = HeirToTheThrown(DeployedAddresses.HeirToTheThrown());
-		Assert.equal(, , );
+		Assert.equal(inst.coefCostPerc(), 2, "should be two");
 	}
 
 }

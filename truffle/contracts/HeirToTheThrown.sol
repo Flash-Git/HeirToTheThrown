@@ -10,8 +10,17 @@ function _transferCrown(address _newMonarch) internal {
     activeMonarchAddr = _newMonarch;
 }
 */
-pragma solidity 0.4.24;
+pragma solidity ^0.4.24;
 
+
+contract HeirToTheThrown {
+
+	uint public coefCostPerc = 2;
+
+}
+
+
+/*
 import "./Ownable.sol";
 
 contract HeirToTheThrown is Ownable {
@@ -164,3 +173,4 @@ contract HeirToTheThrown is Ownable {
 	}
 
 }
+*/
