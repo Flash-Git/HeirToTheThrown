@@ -6,9 +6,22 @@ import "../contracts/HeirToTheThrown.sol";
 
 contract TestHeirToTheThrown {
 
-	function testBasics() public {
+	function testConstructor() public {
 		HeirToTheThrown inst = HeirToTheThrown(DeployedAddresses.HeirToTheThrown());
-		Assert.equal(inst.coefCostPerc(), 2, "should be two");
+
+		uint expectedCrownCost = 5;
+		Assert.equal(inst.crownCost(), expectedCrownCost, "crown cost");
+
+		address expectedLatestContract = DeployedAddresses.HeirToTheThrown();
+		Assert.equal(inst.latestContract(), expectedLatestContract, "latest contract address");
 	}
+
+	//function testInitialState() public {
+		//HeirToTheThrown inst = HeirToTheThrown(DeployedAddresses.HeirToTheThrown());
+
+		//string storage expectedDynastyName = "First";
+		//string storage name = "First";
+		//Assert.equal(name, expectedDynastyName, "dynasty name");
+	//}
 
 }
