@@ -84,10 +84,14 @@ contract HeirToTheThrown is Ownable {
 		}
 
 		dynasties[dynasties.length - 1].monarchs.push(newMonarch);
-		//TODO testing
+
 		dynasties[dynasties.length - 1].totalMonarchs++;
 
 		crownCost = value + value * coefCostPerc / 100;
+	}
+
+	function takeCrown1(string _heirName) public payable {//TEMP
+
 	}
 
 	function startDynasty(string _heirName, string _dynastyName) public payable {
