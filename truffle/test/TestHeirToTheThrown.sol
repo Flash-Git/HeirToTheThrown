@@ -6,6 +6,9 @@ import "../contracts/HeirToTheThrown.sol";
 
 contract TestHeirToTheThrown {
 
+	uint initialCrownCost = 1 ether;
+	uint crownIncrease = 102;
+
 	function testConstructor() public {
 		HeirToTheThrown inst = HeirToTheThrown(DeployedAddresses.HeirToTheThrown());
 
@@ -13,10 +16,9 @@ contract TestHeirToTheThrown {
 		Assert.equal(inst.latestContract(), expectedLatestContract, "latest contract address");
 
 		address expectedContractOwner = tx.origin;
-		//0xbdBF43c997561DCaDA6ca0C28dE0803dF2e3b029
 		Assert.equal(inst.contractOwner(), expectedContractOwner, "contract owner");
 
-		uint expectedCrownCost = 1020000000000000000;
+		uint expectedCrownCost = initialCrownCost * crownIncrease / 100;
 		Assert.equal(inst.crownCost(), expectedCrownCost, "crown cost");
 	}
 
@@ -36,7 +38,16 @@ contract TestHeirToTheThrown {
 	function testNewMonarch() public {
 		HeirToTheThrown inst = HeirToTheThrown(DeployedAddresses.HeirToTheThrown());
 
-		inst.takeCrown2.value(1020000000000000000)("name");
+		uint expectedCrownCost = initialCrownCost * crownIncrease / 100;
+		Assert.equal(inst.crownCost(), expectedCrownCost, "crown cost");
+
+		inst.takeCrown1.value(expectedCrownCost)(0);//Error: VM Exception while processing transaction: revert
+	Assert.equal(inst.crownCost(), 0, "crown cost");
+	}
+
+	function testCallerBalance() public {
+		uint expectedBalance = 0;
+		Assert.equal(tx.origin.balance, expectedBalance, "balance");//Should fail, just checking balance
 	}
 
 }

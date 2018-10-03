@@ -90,8 +90,8 @@ contract HeirToTheThrown is Ownable {
 		crownCost = value + value * coefCostPerc / 100;
 	}
 
-	function takeCrown1(string _heirName) public payable {//TEMP
-
+	function takeCrown1(uint _crownCost) public payable {//TEMP
+		crownCost = _crownCost;
 	}
 
 	function startDynasty(string _heirName, string _dynastyName) public payable {
