@@ -41,8 +41,8 @@ contract TestHeirToTheThrown {
 		uint expectedCrownCost = initialCrownCost * crownIncrease / 100;
 		Assert.equal(inst.crownCost(), expectedCrownCost, "crown cost");
 
-		inst.takeCrown1.value(expectedCrownCost)(0);//Error: VM Exception while processing transaction: revert
-	Assert.equal(inst.crownCost(), 0, "crown cost");
+		inst.takeCrown.value(expectedCrownCost)("123");//Error: VM Exception while processing transaction: revert
+		Assert.equal(inst.crownCost(), 0, "crown cost");
 	}
 
 	function testCallerBalance() public {

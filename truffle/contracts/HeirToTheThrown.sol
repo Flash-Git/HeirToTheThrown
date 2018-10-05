@@ -1,15 +1,3 @@
-/* 
-function transferCrown(address _newMonarch) public onlyMonarch {
-    _transferCrown(_newMonarch);
-}
-
-//why not put this in transferCrown?
-function _transferCrown(address _newMonarch) internal {
-    require(_newMonarch != address(0));
-    emit CrownTransferred(activeMonarchAddr, _newMonarch);
-    activeMonarchAddr = _newMonarch;
-}
-*/
 pragma solidity ^0.4.24;
 
 import "./Ownable.sol";
