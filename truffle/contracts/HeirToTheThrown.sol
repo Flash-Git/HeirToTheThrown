@@ -158,4 +158,8 @@ contract HeirToTheThrown is Ownable {
 		//Withdraws anything that isn't taxes
 	}
 
+	function getEthBalance() public view returns (uint) {
+		return address(this).balance;
+	}
+
 }
