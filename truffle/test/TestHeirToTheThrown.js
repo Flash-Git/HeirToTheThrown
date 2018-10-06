@@ -20,11 +20,35 @@ contract("HeirToTheThrown Tests",
 
 				let expectedCrownCost = 1020000000000000000;
 				let crownCost = await instance.crownCost();
-				assert.equal(crownCost.valueOf(), expectedCrownCost);
+				assert.equal(crownCost, expectedCrownCost);
 
 				let expectedTaxesHeld = 0;
 				let taxesHeld = await instance.taxesHeld();
-				assert.equal(taxesHeld.valueOf(), expectedTaxesHeld);
+				assert.equal(taxesHeld, expectedTaxesHeld);
+
+				let expectedTotalDynasties = 1;
+				let totalDynasties = await instance.getTotalDynasties();
+				assert.equal(totalDynasties, expectedTotalDynasties);
+
+				let expectedNumberOfMonarchs = 1
+				let numberOfMonarchs = await instance.getDynastyLength(0);
+				assert.equal(numberOfMonarchs, expectedNumberOfMonarchs);
+			}
+		);
+
+		it(
+			"should set new heir", async () => {
+				let instance = await HeirToTheThrown.deployed();
+
+				await instance.takeCrown("2", {from: accounts[0], value: 1020000000000000000})
+
+				let expectedCrownCost = 1040400000000000000;
+				let crownCost = await instance.crownCost();
+				assert.equal(crownCost, expectedCrownCost);
+
+				let expectedNumberOfMonarchs = 2
+				let numberOfMonarchs = await instance.getDynastyLength(0);
+				assert.equal(numberOfMonarchs, expectedNumberOfMonarchs);
 			}
 		);
 	}

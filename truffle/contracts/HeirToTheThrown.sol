@@ -78,10 +78,6 @@ contract HeirToTheThrown is Ownable {
 		crownCost = value + value * coefCostPerc / 100;
 	}
 
-	function takeCrown1(uint _crownCost) public payable {//TEMP
-		crownCost = _crownCost;
-	}
-
 	function startDynasty(string _heirName, string _dynastyName) public payable {
 		if (dynasties.length != 0) {
 			require(dynasties[dynasties.length - 1].monarchs[dynasties[dynasties.length - 1].monarchs.length - 1].abdicated, "Last Dynasty is still going strong");
@@ -115,22 +111,22 @@ contract HeirToTheThrown is Ownable {
 	}
 
 	//Getters for monarch with indices
-	function getMonarchAddr(uint _dynastyIndex, uint _monarchIndex) external view returns (address){
+	function getMonarchAddr(uint _dynastyIndex, uint _monarchIndex) external view returns (address) {
 		require(_dynastyIndex < dynasties.length && _monarchIndex < dynasties[_dynastyIndex].monarchs.length, "Invalid monarch");
 		return dynasties[_dynastyIndex].monarchs[_monarchIndex].addr;
 	}
 
-	function getMonarchName(uint _dynastyIndex, uint _monarchIndex) external view returns (string){
+	function getMonarchName(uint _dynastyIndex, uint _monarchIndex) external view returns (string) {
 		require(_dynastyIndex < dynasties.length && _monarchIndex < dynasties[_dynastyIndex].monarchs.length, "Invalid monarch");
 		return dynasties[_dynastyIndex].monarchs[_monarchIndex].name;
 	}
 
-	function getMonarchCrownCost(uint _dynastyIndex, uint _monarchIndex) external view returns (uint){
+	function getMonarchCrownCost(uint _dynastyIndex, uint _monarchIndex) external view returns (uint) {
 		require(_dynastyIndex < dynasties.length && _monarchIndex < dynasties[_dynastyIndex].monarchs.length, "Invalid monarch");
 		return dynasties[_dynastyIndex].monarchs[_monarchIndex].costOfCrown;
 	}
 
-	function hasMonarchAbdicated(uint _dynastyIndex, uint _monarchIndex) external view returns (bool){
+	function hasMonarchAbdicated(uint _dynastyIndex, uint _monarchIndex) external view returns (bool) {
 		require(_dynastyIndex < dynasties.length && _monarchIndex < dynasties[_dynastyIndex].monarchs.length, "Invalid monarch");
 		return dynasties[_dynastyIndex].monarchs[_monarchIndex].abdicated;
 	}
@@ -160,6 +156,10 @@ contract HeirToTheThrown is Ownable {
 
 	function getEthBalance() public view returns (uint) {
 		return address(this).balance;
+	}
+
+	function getDynastyLength(uint _index) public view returns (uint) {
+		return dynasties[_index].monarchs.length;
 	}
 
 }
