@@ -1,25 +1,28 @@
+------------VARIABLES------------
 
-crown cost = 1000
+Initial cost is 1000
+A is crown holder
+B is crown taker
+
+
+------ABDICATION--SITUATION------
+
+TAKECROWN - A pays 1000
+crown value = 1000
 cost for nextCrown = 1100
 cost to abdicate = 1000/20 = 50
-crown cost = 500
+
+ADBIDATE - A pays 50
+crown value = 500
 cost for next crown = 550
-someone buys crown for 550, abdicator pays half his money back
 cost to abdicate = 500/20 = 25
-crown cost = 250
 
------
+TAKECROWN - B pays A 550
+crown value = 550
+cost of next crown = 605
+cost to abdicate = 550/20 = 27.5
 
+RESULTS
 
-/*
-function transferCrown(address _newMonarch) public onlyMonarch {
-    _transferCrown(_newMonarch);
-}
-
-//why not put this in transferCrown?
-function _transferCrown(address _newMonarch) internal {
-    require(_newMonarch != address(0));
-    emit CrownTransferred(activeMonarchAddr, _newMonarch);
-    activeMonarchAddr = _newMonarch;
-}
-*/
+A pays 1000 + 50 - 550 = 500
+B pays 550
