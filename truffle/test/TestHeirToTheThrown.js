@@ -51,5 +51,13 @@ contract("HeirToTheThrown Tests",
 				assert.equal(numberOfMonarchs, expectedNumberOfMonarchs);
 			}
 		);
+
+		it(
+			"should abdicate and create new dynasty", async () => {
+				let instance = await HeirToTheThrown.deployed();
+
+				await instance.abdicate({from: accounts[0], value: 50000000000000000})
+			}
+		);
 	}
 );
