@@ -56,7 +56,7 @@ contract HeirToTheThrown is Ownable {
 		//
 	}
 
-	function takeCrown(string _heirName) public payable {//TODO Check for exploits
+	function takeCrown(string _heirName) public payable {//TODO Check for exploits and add fees to dscourage spam
 		require(msg.value + taxesHeld >= crownCost, "Cannot afford the Crown");
 		uint value = msg.value + taxesHeld;
 		taxesHeld = 0;
@@ -93,8 +93,8 @@ contract HeirToTheThrown is Ownable {
 	}
 
 	function abdicate() public payable onlyMonarch {
-		require(msg.value >= getActiveMonarch().costOfCrown * abdicationCostPerc * 100);
-		contractOwner.transfer(getActiveMonarch().costOfCrown * abdicationCostPerc * 100);
+		require(msg.value >= getActiveMonarch().costOfCrown * abdicationCostPerc / 100);//TODO add abdication check
+		contractOwner.transfer(getActiveMonarch().costOfCrown * abdicationCostPerc / 100);
 	}
 
 	function getActiveMonarch() private view returns (monarch) {
