@@ -88,12 +88,8 @@ contract HeirToTheThrown is Ownable {
 		emit DynastyStarted(msg.sender);
 	}
 
-	function abdication() private pure {//TODO
-
-	}
-
 	function abdicate() public payable onlyMonarch {
-		require(msg.value >= getActiveMonarch().costOfCrown * abdicationCostPerc / 100);//TODO add abdication check
+		require(msg.value >= getActiveMonarch().costOfCrown * abdicationCostPerc / 100, "Cannot afford to abdicate");//TODO add abdication check
 		contractOwner.transfer(getActiveMonarch().costOfCrown * abdicationCostPerc / 100);
 	}
 

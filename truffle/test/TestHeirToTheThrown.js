@@ -1,9 +1,25 @@
 const HeirToTheThrown = artifacts.require("HeirToTheThrown");
 
 contract("HeirToTheThrown Tests",
-	async (accounts) => {
+	async(accounts) => {
+		let heirToTheThrown;
+
+		/*
+		beforeEach(
+			async() => {
+				heirToTheThrown = await HeirToTheThrown.new(1000000000000000000, {from: accounts[0], value: 1000000000000000000});
+			}
+		);
+
+		afterEach(
+			async() => {
+				//await heirToTheThrown.kill({from: accounts[0]});
+			}
+		);
+		*/
+
 		it(
-			"should set initial values", async () => {
+			"should set initial values", async() => {
 				let instance = await HeirToTheThrown.deployed();
 
 				//let expectedLatestContract = instance"";
@@ -37,7 +53,7 @@ contract("HeirToTheThrown Tests",
 		);
 
 		it(
-			"should set new heir", async () => {
+			"should set new heir", async() => {
 				let instance = await HeirToTheThrown.deployed();
 
 				await instance.takeCrown("2", {from: accounts[0], value: 1020000000000000000})
@@ -53,10 +69,14 @@ contract("HeirToTheThrown Tests",
 		);
 
 		it(
-			"should abdicate and create new dynasty", async () => {
+			"should abdicate and create new dynasty", async() => {
 				let instance = await HeirToTheThrown.deployed();
 
-				await instance.abdicate({from: accounts[0], value: 50000000000000000})
+				//await instance.abdicate({from: accounts[0], value: 100000000000000000})
+
+				let expectedCrownCost = 1040400000000000000;
+				let crownCost = await instance.crownCost();
+				assert.equal(crownCost, expectedCrownCost);
 			}
 		);
 	}
