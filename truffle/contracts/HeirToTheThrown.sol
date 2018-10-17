@@ -4,6 +4,16 @@ import "./Ownable.sol";
 
 contract HeirToTheThrown is Ownable {
 
+	function isLatest() returns (bool) {
+		return address(this) == latestContract;
+	}
+
+	modifier onlyLatest() {
+		if(!isLatest())
+			throw;
+		_;
+	}
+
 	//Points to latest contract
 	address public latestContract;
 
@@ -56,7 +66,7 @@ contract HeirToTheThrown is Ownable {
 		//
 	}
 
-	function takeCrown(string _heirName) public payable {//TODO Check for exploits and add fees to dscourage spam
+	function takeCrown(string _heirName) public payable onlyLatest {//TODO Check for exploits and add fees to dscourage spam
 		require(msg.value + taxesHeld >= crownCost, "Cannot afford the Crown");
 		uint value = msg.value + taxesHeld;
 		taxesHeld = 0;
@@ -78,7 +88,7 @@ contract HeirToTheThrown is Ownable {
 		crownCost = value + value * coefCostPerc / 100;
 	}
 
-	function startDynasty(string _heirName, string _dynastyName) public payable {
+	function startDynasty(string _heirName, string _dynastyName) public payable onlyLatest {
 		if (dynasties.length != 0) {
 			require(dynasties[dynasties.length - 1].monarchs[dynasties[dynasties.length - 1].monarchs.length - 1].abdicated, "Last Dynasty is still going strong");
 		}
